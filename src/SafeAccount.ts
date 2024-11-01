@@ -1,9 +1,16 @@
+import rtn4337Module from "./rtn4337Module";
 import { defaultConfig, SafeConfig, verifyConfig } from "./SafeConfig";
 import { isValidEthereumAddress, isValidHex } from "./Utils";
-import rtn4337Module from "./rtn4337Module";
 import { EOASigner } from "./signer/EOASigner";
 import { PasskeySigner } from "./signer/PasskeySigner";
 import { UserOperation } from "./types/UserOperation";
+
+type SendUserOperationParams = {
+  to: string;
+  value?: string;
+  data: string;
+  delegateCall: boolean;
+};
 
 class SafeAccount {
   private chainId: number;
@@ -36,8 +43,11 @@ class SafeAccount {
     this.bundlerUrl = bundlerUrl;
     this.paymasterUrl = paymasterUrl;
     this.signer = signer;
-    if (address && !isValidEthereumAddress(address))
+
+    if (address && !isValidEthereumAddress(address)) {
       throw new Error("address is not a valid ethereum address");
+    }
+
     this.address = address;
     verifyConfig(safeConfig);
     this.config = { ...defaultConfig, ...safeConfig };
@@ -52,9 +62,9 @@ class SafeAccount {
       address: this.address,
       paymasterUrl: this.paymasterUrl,
       signer: {
-        ...(this.signer instanceof PasskeySigner && { rpId: this.signer.rpId }),
         ...(this.signer instanceof PasskeySigner && {
           userName: this.signer.userName,
+          rpId: this.signer.rpId,
         }),
         ...(this.signer instanceof EOASigner && {
           privateKey: this.signer.privateKey,
@@ -63,19 +73,8 @@ class SafeAccount {
     };
   }
 
-  sendUserOperation(
-    to_address: string,
-    value: string,
-    data: string,
-    delegateCall: boolean = false,
-  ): Promise<string> {
-    return rtn4337Module.sendUserOperation(
-      this.getCommonParams(),
-      to_address,
-      value,
-      data,
-      delegateCall,
-    );
+  sendUserOperation({ to, value = "0x", data, delegateCall }: SendUserOperationParams): Promise<string> {
+    return rtn4337Module.sendUserOperation(this.getCommonParams(), to, value, data, delegateCall);
   }
 
   signUserOperation(userOp: UserOperation): Promise<string> {
@@ -96,25 +95,13 @@ class SafeAccount {
   }
 
   addOwner(owner: string): Promise<string> {
-    if (!isValidEthereumAddress(owner))
-      throw new Error("owner is not a valid ethereum address");
+    if (!isValidEthereumAddress(owner)) throw new Error("owner is not a valid ethereum address");
     return rtn4337Module.addOwner(this.getCommonParams(), owner);
   }
 
-  prepareUserOperation(
-    to_address: string,
-    value: string,
-    data: string,
-    delegateCall: boolean = false,
-  ): Promise<UserOperation> {
+  prepareUserOperation({ to, value = "0x", data, delegateCall }: SendUserOperationParams): Promise<UserOperation> {
     return rtn4337Module
-      .prepareUserOperation(
-        this.getCommonParams(),
-        to_address,
-        value,
-        data,
-        delegateCall,
-      )
+      .prepareUserOperation(this.getCommonParams(), to, value, data, delegateCall)
       .then((result) => result as UserOperation);
   }
 }
@@ -141,43 +128,55 @@ class SafeAccount {
     public var signature: String
 */
 const isValidUserOp = (userOp: UserOperation) => {
-  // check if sender not null/undefined
-  if (!userOp.sender || !isValidEthereumAddress(userOp.sender))
+  if (!userOp.sender || !isValidEthereumAddress(userOp.sender)) {
     throw new Error("Invalid sender address");
-  if (!userOp.nonce || !isValidHex(userOp.nonce))
+  }
+  if (!userOp.nonce || !isValidHex(userOp.nonce)) {
     throw new Error("Invalid nonce");
-  if (userOp.factory && !isValidEthereumAddress(userOp.factory))
+  }
+  if (userOp.factory && !isValidEthereumAddress(userOp.factory)) {
     throw new Error("Invalid factory address");
-  if (userOp.factoryData && !isValidHex(userOp.factoryData))
+  }
+  if (userOp.factoryData && !isValidHex(userOp.factoryData)) {
     throw new Error("Invalid factory data");
-  if (!userOp.callData || !isValidHex(userOp.callData))
+  }
+  if (!userOp.callData || !isValidHex(userOp.callData)) {
     throw new Error("Invalid call data");
-  if (!userOp.preVerificationGas || !isValidHex(userOp.preVerificationGas))
+  }
+  if (!userOp.preVerificationGas || !isValidHex(userOp.preVerificationGas)) {
     throw new Error("Invalid preVerificationGas");
-  if (!userOp.callGasLimit || !isValidHex(userOp.callGasLimit))
+  }
+  if (!userOp.callGasLimit || !isValidHex(userOp.callGasLimit)) {
     throw new Error("Invalid callGasLimit");
-  if (!userOp.verificationGasLimit || !isValidHex(userOp.verificationGasLimit))
+  }
+  if (!userOp.verificationGasLimit || !isValidHex(userOp.verificationGasLimit)) {
     throw new Error("Invalid verificationGasLimit");
-  if (!userOp.maxFeePerGas || !isValidHex(userOp.maxFeePerGas))
+  }
+
+  if (!userOp.maxFeePerGas || !isValidHex(userOp.maxFeePerGas)) {
     throw new Error("Invalid maxFeePerGas");
-  if (!userOp.maxPriorityFeePerGas || !isValidHex(userOp.maxPriorityFeePerGas))
+  }
+  if (!userOp.maxPriorityFeePerGas || !isValidHex(userOp.maxPriorityFeePerGas)) {
     throw new Error("Invalid maxPriorityFeePerGas");
-  if (userOp.paymaster && !isValidEthereumAddress(userOp.paymaster))
+  }
+
+  if (userOp.paymaster && !isValidEthereumAddress(userOp.paymaster)) {
     throw new Error("Invalid paymaster address");
-  if (userOp.paymasterData && !isValidHex(userOp.paymasterData))
+  }
+  if (userOp.paymasterData && !isValidHex(userOp.paymasterData)) {
     throw new Error("Invalid paymaster data");
-  if (
-    userOp.paymasterVerificationGasLimit &&
-    !isValidHex(userOp.paymasterVerificationGasLimit)
-  )
+  }
+  if (userOp.paymasterVerificationGasLimit && !isValidHex(userOp.paymasterVerificationGasLimit)) {
     throw new Error("Invalid paymasterVerificationGasLimit");
-  if (
-    userOp.paymasterPostOpGasLimit &&
-    !isValidHex(userOp.paymasterPostOpGasLimit)
-  )
+  }
+
+  if (userOp.paymasterPostOpGasLimit && !isValidHex(userOp.paymasterPostOpGasLimit)) {
     throw new Error("Invalid paymasterPostOpGasLimit");
-  if (!userOp.signature || !isValidHex(userOp.signature))
+  }
+
+  if (!userOp.signature || !isValidHex(userOp.signature)) {
     throw new Error("Invalid signature");
+  }
 };
 
 export { SafeAccount };

@@ -48,7 +48,7 @@ public class rtn4337Module: Module {
         AsyncFunction("sendUserOperation") { (params: CommonParams, to: String, value: String, data: String, delegateCall: Bool) -> String in
             do {
                 let safeAccount = try await getSafeAccount(params: params)
-                let userOpHash = try await safeAccount.sendUserOperation(to: EthereumAddress(to))
+                let userOpHash = try await safeAccount.sendUserOperation(to: EthereumAddress(to), value: BigUInt(hex: value)!, data: BigUInt(hex: data)!, delegateCall: delegateCall)
                 return userOpHash
             } catch let error as EthereumClientError {
                 var message = ""
@@ -99,7 +99,7 @@ public class rtn4337Module: Module {
         AsyncFunction("prepareUserOperation") { (params: CommonParams, to: String, value: String, data: String, delegateCall: Bool) -> [String: String?] in
             do {
                 let safeAccount = try await getSafeAccount(params: params)
-                let userOperation = try await safeAccount.prepareUserOperation(to: EthereumAddress(to), value: BigUInt(hex: value)!, delegateCall: delegateCall)
+                let userOperation = try await safeAccount.prepareUserOperation(to: EthereumAddress(to), value: BigUInt(hex: value)!, data: BigUInt(hex: data)!, delegateCall: delegateCall)
                 return userOperation.toDictionary()
             } catch let error as SmartAccountError {
                 throw Rtn4337Exception(error.localizedDescription)
