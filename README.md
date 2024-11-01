@@ -9,6 +9,7 @@
 Built for the new React Native architecture with TurboModules, `rtn-4337` brings the main features from the native libraries.
 
 We currently support the following features:
+
 - **Safe Account**: We offer a high-level API for deploying and managing smart accounts (currently supporting Safe Account).
 - **Bundler**: Comprehensive support for all bundler methods as defined
   by [ERC-4337](https://eips.ethereum.org/EIPS/eip-4337#rpc-methods-eth-namespace).
@@ -38,7 +39,7 @@ use_modular_headers!
 If you're using expo, you can add this line to your `Podfile.properties.json`:
 
 ```
-"ios.deploymentTarget": "15.6" 
+"ios.deploymentTarget": "15.6"
 ```
 
 or change it via Xcode.
@@ -55,9 +56,10 @@ If expo, add this line to your `Podfile.properties.json`:
 
 ```
 npx pod-install
-``` 
+```
 
 ## Getting Started
+
 ### Overview
 
 ```typescript
@@ -89,15 +91,15 @@ estimating user operations, and sponsoring gas.
 In this version of the SDK, we provide support for [Safe Accounts](https://safe.global/).
 
 ```typescript
-const safeAccount = new SafeAccount({ chainId, rpcUrl, bundlerUrl, signer, paymasterUrl})
-const userOpHash = await safeAccount.sendUserOperation(to, value, data)
+const safeAccount = new SafeAccount({ chainId, rpcUrl, bundlerUrl, signer, paymasterUrl });
+const userOpHash = await safeAccount.sendUserOperation(to, value, data);
 ```
 
 ##### Constructor
 
 ```typescript
 constructor(
-        { chainId, rpcUrl, bundlerUrl, signer, paymasterUrl, address, safeConfig = defaultConfig }: 
+        { chainId, rpcUrl, bundlerUrl, signer, paymasterUrl, address, safeConfig = defaultConfig }:
         {
           chainId: number,
           rpcUrl: string,
@@ -132,9 +134,9 @@ const defaultConfig: SafeConfig = {
 
 > [!NOTE]  
 > We use the default Gas Estimator provided by the native libraries. For more details, refer to their implementation of `RPCGasEstimator`:
+>
 > - [android4337](https://github.com/cometh-hq/android4337/blob/main/android4337/src/main/java/io/cometh/android4337/gasprice/RPCGasEstimator.kt)
 > - [swift4337](https://github.com/cometh-hq/swift4337/blob/main/Sources/swift4337/gas-estimator/RPCGasEstimator.swift)
-
 
 ### Signer
 
@@ -148,6 +150,7 @@ On chain contracts use ERC-1271 and WebAuthn standards for verifying WebAuthn si
 
 > [!IMPORTANT]
 > To enable passkey support on Android and iOS, you need to follow some instructions. Please refer to the original libraries for more information:
+>
 > - [android4337](https://github.com/cometh-hq/android4337?tab=readme-ov-file#passkey-signer)
 > - [swift4337](https://github.com/cometh-hq/swift4337?tab=readme-ov-file#passkey-signer)
 
@@ -160,15 +163,15 @@ There is one notable caveat when using the passkey module with ERC-4337 specific
 In order to bypass this limitation you can use the SafeWebAuthnSharedSigner: a singleton that can be used as a Safe owner.
 For more Infos : [Safe passkey module](https://github.com/safe-global/safe-modules/blob/main/modules/passkey/contracts/4337/README.md#overview)
 
-To sign user operations with a Passkey, provide a passkey signer when creating the Safe Account. 
+To sign user operations with a Passkey, provide a passkey signer when creating the Safe Account.
 If the Passkey doesn't exist for the specified name, the registration process will start, and the user will need to use their biometrics.
 
 Then when a request to sign a message is received, the user has to use its biometric to sign the message.
 
 ```typescript
-const signer = await PasskeySigner.create("sample4337.cometh.io", "my_user")
-const safeAccount = new SafeAccount({ chainId, rpcUrl, bundlerUrl, signer, paymasterUrl})
-const userOpHash = await safeAccount.sendUserOperation(to, value, data)
+const signer = await PasskeySigner.create("sample4337.cometh.io", "my_user");
+const safeAccount = new SafeAccount({ chainId, rpcUrl, bundlerUrl, signer, paymasterUrl });
+const userOpHash = await safeAccount.sendUserOperation(to, value, data);
 ```
 
 This will init a safe with a Passkey Signer using the Safe WebAuthn Shared Signer contract as owner.
@@ -187,9 +190,9 @@ You can also use an EOASigner to sign user operations. This signer is used to si
 **NOTE: TODO**.
 
 ```typescript
-const signer = { privateKey: "xxxxxxxxxxx" }
-const safeAccount = new SafeAccount({ chainId, rpcUrl, bundlerUrl, signer, paymasterUrl})
-const userOpHash = await safeAccount.sendUserOperation(to, value, data)
+const signer = { privateKey: "xxxxxxxxxxx" };
+const safeAccount = new SafeAccount({ chainId, rpcUrl, bundlerUrl, signer, paymasterUrl });
+const userOpHash = await safeAccount.sendUserOperation(to, value, data);
 ```
 
 ### RPC, Bundler and Paymaster URLs
@@ -198,7 +201,7 @@ const userOpHash = await safeAccount.sendUserOperation(to, value, data)
 - Bundler: To send, estimate, and get user operations receipts, you need a Bundler.
 - Paymaster: To sponsorise gas for users you need a Paymaster client.
 
-The native libraries allow for overriding and creating your own RPC, bundler, or paymaster; this is not the case with this SDK. 
+The native libraries allow for overriding and creating your own RPC, bundler, or paymaster; this is not the case with this SDK.
 Thus, we use the default implementations provided by the underlying native libraries.
 
 ## Contributors
@@ -208,7 +211,3 @@ The initial project was crafted by the team at Cometh. However, we encourage any
 ## License
 
 Released under the [Apache License](https://github.com/cometh-hq/rtn-4337/blob/main/LICENSE.txt).
-
-
-
-
