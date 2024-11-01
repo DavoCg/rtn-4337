@@ -7,9 +7,9 @@ import { UserOperation } from "./types/UserOperation";
 
 type SendUserOperationParams = {
   to: string;
-  value?: string;
   data: string;
-  delegateCall: boolean;
+  value?: string;
+  delegateCall?: boolean;
 };
 
 class SafeAccount {
@@ -73,7 +73,7 @@ class SafeAccount {
     };
   }
 
-  sendUserOperation({ to, value = "0x", data, delegateCall }: SendUserOperationParams): Promise<string> {
+  sendUserOperation({ to, value = "0x", data, delegateCall = false }: SendUserOperationParams): Promise<string> {
     return rtn4337Module.sendUserOperation(this.getCommonParams(), to, value, data, delegateCall);
   }
 
@@ -99,7 +99,12 @@ class SafeAccount {
     return rtn4337Module.addOwner(this.getCommonParams(), owner);
   }
 
-  prepareUserOperation({ to, value = "0x", data, delegateCall }: SendUserOperationParams): Promise<UserOperation> {
+  prepareUserOperation({
+    to,
+    value = "0x",
+    data,
+    delegateCall = false,
+  }: SendUserOperationParams): Promise<UserOperation> {
     return rtn4337Module
       .prepareUserOperation(this.getCommonParams(), to, value, data, delegateCall)
       .then((result) => result as UserOperation);
